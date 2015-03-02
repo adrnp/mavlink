@@ -1,0 +1,112 @@
+<?xml version='1.0'?>
+<mavlink>
+     <include>common.xml</include>
+     <enums>
+          <enum name="TRACK_COMPUTER_STATUS">
+               <description>The status of the tracking computer, basically what is the tracking computer up to, allows knowing
+                    when the tracking computer believes it has finished hunting.
+               </description>
+               <entry value="0" name="TRACKING_UNKNOWN">
+                    <description>either have not communicated with the tracking computer yet, or something has severed communication with tracking computer</description>
+               </entry>
+               <entry value="1" name="TRACKING_STANDBY">
+                    <description>Tracking computer is up and running and is waiting to enter hunt mode</description>
+               </entry>
+               <entry value="2" name="TRACKING_HUNT">
+                    <description>Tracking computer is currently in hunt mode and is communicating commands back and forth with the pixhawk</description>
+               </entry>
+               <entry value="3" name="TRACKING_DONE">
+                    <description>Tracking computer believes it has reached the jammer</description>
+               </entry>
+          </enum>
+          <enum name="TRACK_HUNT_CMD">
+               <description>Possible commands that the tracking computer can send to the vehicle.
+               </description>
+               <entry value="1" name="TRACKING_CMD_TRAVEL" />
+               <entry value="2" name="TRACKING_CMD_ROTATE" />
+               <entry value="3" name="TRACKING_CMD_FINISH">
+                    <description>Tell the vehicle that the jammer has been found at this location and to just loiter at the given location indefinitely</description>
+               </entry>
+          </enum>
+          <enum name="TRACK_HUNT_STATE">
+               <description>The state of the hunt mode on the pixhawk, basically where in it's state machine it is
+                    currently residing.
+               </description>
+               <entry value="0" name="TRACKING_HUNT_STATE_OFF">
+                    <description>hunt mode is currently not running</description>
+               </entry>
+               <entry value="1" name="TRACKING_HUNT_STATE_START">
+                    <description>hunt mode was triggered for the first time and vehicle is flying to its starting position</description>
+               </entry>
+               <entry value="2" name="TRACKING_HUNT_STATE_WAIT">
+                    <description>hunt mode is waiting for a tracking command from the tracking computer (or ground station)</description>
+               </entry>
+               <entry value="3" name="TRACKING_HUNT_STATE_MOVE">
+                    <description>executing a travel command</description>
+               </entry>
+               <entry value="4" name="TRACKING_HUNT_STATE_ROTATE">
+                    <description>executing a rotation command</description>
+               </entry>
+          </enum>
+     </enums>
+     <messages>
+          <message id="201" name="APNT_GPS_STATUS">
+               <description>Contains information about the current status of the gps from the apnt system.
+               </description>
+               <field type="uint64_t" name="timestamp_usec">timestamp (microseconds since UNIX) from gps?</field>
+               <field type="float" name="gps_lat">latitude from apnt gps</field>
+               <field type="float" name="gps_lon">longitude from apnt gps</field>
+               <field type="float" name="gps_alt">altitude from apnt gps</field>
+               <field type="uint8_t[8]" name="prn">array of prn code of up to 8 satellites in view</field>
+               <field type="int16_t[8]" name="azimuth">array of the azimuth of up to 8 satellites in view</field>
+               <field type="uint8_t[8]" name="elevation">array of the elevation of up to 8 satellites in view</field>
+               <field type="uint8_t[8]" name="snr">array of signal to noise ration of up to 8 satellites in view</field>
+          </message>
+          <message id="202" name="APNT_SITE_STATUS">
+               <description>Contains information about the current status of the apnt from the apnt system.
+               </description>
+               <field type="uint64_t" name="timestamp_usec">timestamp (microseoncds since UNIX) from apnt??</field>
+               <field type="uint32_t[4]" name="site_id">tarray of up to 4 site id's</field>
+               <field type="float[4]" name="site_lat">latitude of up to 4 sites seen by apnt</field>
+               <field type="float[4]" name="site_lon">longitude of up to 4 sites seen by apnt</field>
+               <field type="uint16_t[4]" name="site_signal">signal infomation for each of the up to 4 sites seen by apnt</field>
+          </message>
+          <message id="203" name="APNT_POSITION">
+               <description>The current position of the vehicle according to the apnt computer</description>
+               <field type="uint64_t" name="timestamp_usec">timestamp since boot in usec of the position information from apnt</field>
+               <field type="float" name="apnt_lat">latitude from apnt</field>
+               <field type="float" name="apnt_lon">longitude from apnt</field>
+          </message>
+          <message id="210" name="TRACKING_STATUS">
+               <description>Contains status information about the tracking computer and the progress of the tracking (the state of the hunt mode).
+               </description>
+               <field type="uint64_t" name="timestamp_usec">time since boot in usec of last update from the tracking computer</field>
+               <field type="uint8_t" name="computer_status">current tracking status, see tracking status enum</field>
+               <field type="uint8_t" name="hunt_mode_state">current state of the hunt mode on the pixhawk, enumerated in hunt mode??</field>
+          </message>
+          <message id="211" name="TRACKING_CMD">
+               <description>Contains a command from the tracking computer for the desired motion of the vehicle.
+               </description>
+               <field type="uint64_t" name="timestamp_usec">time since boot in usec of when the command was sent</field>
+               <field type="uint16_t" name="cmd_id">id of this command, used for purposes of executing correct commands</field>
+               <field type="uint8_t" name="cmd_type">the type of the command, enumerated in TRACK_CMD</field>
+               <field type="double" name="north">North distance to travel in meters</field>
+               <field type="double" name="east">East distance to travel in meters</field>
+               <field type="float" name="yaw_angle">Yaw angle through which to rotate, or the yaw angle in which to point the vehicle duing a travel command</field>
+               <field type="float" name="altitude">Altitude for the desired command</field>
+          </message>
+          <message id="212" name="HUNT_MISSION_CURRENT">
+               <description>id of the current hunt command</description>
+               <field type="uint16_t" name="current_cmd_id">the cmd id of the command being currently executed</field>
+          </message>
+          <message id="213" name="HUNT_MISSION_REACHED">
+               <description>the id of the command that was just reached</description>
+               <field type="uint16_t" name="reached_cmd_id">the cmd id of the command that was most recently completed</field>
+          </message>
+          <message id="214" name="SYSTEM_TIME_USEC">
+               <description>The system time is the time of the master clock, typically the computer clock of the main onboard computer.</description>
+               <field type="uint64_t" name="time_unix_usec">Timestamp of the master clock in microseconds since UNIX epoch.</field>
+               <field type="uint64_t" name="time_boot_usec">Timestamp of the component clock since boot time in microseconds.</field>
+          </message>
+     </messages>
+</mavlink>
