@@ -3,8 +3,6 @@
 <!-- Used for the AA241x branch of the PX4 software stack.  Includes custom mission status and mission behavior messages. -->
 <mavlink>
      <include>common.xml</include>
-     <enums>
-     </enums>
      <messages>
           <message id="151" name="AA241X_MISSION_STATUS">
                <description>Message containing the current mission information for the Spring 2015 AA241x mission</description>
@@ -13,27 +11,41 @@
                <field type="float" name="score">Mission score (range from 0 to 100)</field>
                <field type="float" name="mission_time">Mission time in minutes</field>
           </message>
-          <message id="152" name="AA241X_WATER_DROP">
+          <message id="152" name="AA241X_NEW_FIRE_1">
+               <description>Location and mission timestamp for new fire cells.  There are 3 separate messages to handle a large number of (i,j) coords safely</description>
+               <field type="uint64_t" name="mission_time">Mission time in microseconds at which these new fire cells were created</field>
+               <field type="uint8_t[16]" name="i">list of i coords of new fire (i = 255 means unused array element)</field>
+               <field type="uint8_t[16]" name="j">list of j coords of new fire (j = 255 means unused array element)</field>
+          </message>
+          <message id="153" name="AA241X_NEW_FIRE_2">
+               <field type="uint64_t" name="mission_time">Mission time in microseconds at which these new fire cells were created</field>
+               <field type="uint8_t[16]" name="i">list of i coords of new fire (i = 255 means unused array element)</field>
+               <field type="uint8_t[16]" name="j">list of j coords of new fire (j = 255 means unused array element)</field>
+          </message>
+          <message id="154" name="AA241X_NEW_FIRE_3">
+               <field type="uint64_t" name="mission_time">Mission time in microseconds at which these new fire cells were created</field>
+               <field type="uint8_t[16]" name="i">list of i coords of new fire (i = 255 means unused array element)</field>
+               <field type="uint8_t[16]" name="j">list of j coords of new fire (j = 255 means unused array element)</field>
+          </message>
+          <message id="155" name="AA241X_WATER_DROP_RESULT">
                <description>Location and misssion timestamp that water was virtually dropped from the UAV</description>
                <field type="uint64_t" name="mission_time">Mission time in microseconds at which the water was dropped</field>
+               <field type="uint8_t" name="success">1 if successfully dropped, 0 otherwise</field>
                <field type="uint8_t" name="i">i coordinate in the grid</field>
                <field type="uint8_t" name="j">j coordinate in the grid</field>
           </message>
-          <message id="153" name="AA241X_NEW_FIRE_1">
-               <description>Location and mission timestamp for new fire cells.  There are 3 separate messages to handle a large number of (i,j) coords safely</description>
-               <field type="uint64_t" name="mission_time">Mission time in microseconds at which these new fire cells were created</field>
-               <field type="uint8_t" name="i[8]">list of i coords of new fire (i = 255 means unused array element)</field>
-               <field type="uint8_t" name="j[8]">list of j coords of new fire (j = 255 means unused array element)</field>
-          </message>
-          <message id="154" name="AA241X_NEW_FIRE_2">
-               <field type="uint64_t" name="mission_time">Mission time in microseconds at which these new fire cells were created</field>
-               <field type="uint8_t" name="i[8]">list of i coords of new fire (i = 255 means unused array element)</field>
-               <field type="uint8_t" name="j[8]">list of j coords of new fire (j = 255 means unused array element)</field>
-          </message>
-          <message id="155" name="AA241X_NEW_FIRE_3">
-               <field type="uint64_t" name="mission_time">Mission time in microseconds at which these new fire cells were created</field>
-               <field type="uint8_t" name="i[8]">list of i coords of new fire (i = 255 means unused array element)</field>
-               <field type="uint8_t" name="j[8]">list of j coords of new fire (j = 255 means unused array element)</field>
+          <message id="156" name="AA241X_PICTURE_RESULT">
+               <description>Overview information on the picture that was taken (location and timestamp)</description>
+               <field type="uint64_t" name="mission_time">Mission time in microseconds at which the water was dropped</field>
+               <field type="uint8_t" name="success">1 if successfully taken, 0 otherwise</field>
+               <field type="float" name="center_n">North position of the center of the picture</field>
+               <field type="float" name="center_e">East position of the center of the picture</field>
+               <field type="float" name="center_d">Down position of the center of the picture</field>
+               <field type="float" name="pic_d">Diameter in [m] of the picture</field>
+               <field type="uint8_t" name="num_cells">Number of cells in the picture</field>
+               <field type="uint8_t[9]" name="i">list of i grid coords of grid cells in view (i = 255 means unused array element)</field>
+               <field type="uint8_t[9]" name="j">list of j grid coords of grid cells in view (j = 255 means unused array element)</field>
+               <field type="int8_t[9]" name="state">list of states of the grid cells in cell (state = 3 means unused array element)</field>
           </message>
      </messages>
 </mavlink>
