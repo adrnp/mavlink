@@ -11,22 +11,6 @@
                <field type="float" name="score">Mission score (range from 0 to 100)</field>
                <field type="float" name="mission_time">Mission time in minutes</field>
           </message>
-          <message id="152" name="AA241X_NEW_FIRE_1">
-               <description>Location and mission timestamp for new fire cells.  There are 3 separate messages to handle a large number of (i,j) coords safely</description>
-               <field type="uint64_t" name="mission_time">Mission time in microseconds at which these new fire cells were created</field>
-               <field type="uint8_t[16]" name="i">list of i coords of new fire (i = 255 means unused array element)</field>
-               <field type="uint8_t[16]" name="j">list of j coords of new fire (j = 255 means unused array element)</field>
-          </message>
-          <message id="153" name="AA241X_NEW_FIRE_2">
-               <field type="uint64_t" name="mission_time">Mission time in microseconds at which these new fire cells were created</field>
-               <field type="uint8_t[16]" name="i">list of i coords of new fire (i = 255 means unused array element)</field>
-               <field type="uint8_t[16]" name="j">list of j coords of new fire (j = 255 means unused array element)</field>
-          </message>
-          <message id="154" name="AA241X_NEW_FIRE_3">
-               <field type="uint64_t" name="mission_time">Mission time in microseconds at which these new fire cells were created</field>
-               <field type="uint8_t[16]" name="i">list of i coords of new fire (i = 255 means unused array element)</field>
-               <field type="uint8_t[16]" name="j">list of j coords of new fire (j = 255 means unused array element)</field>
-          </message>
           <message id="155" name="AA241X_WATER_DROP_RESULT">
                <description>Location and misssion timestamp that water was virtually dropped from the UAV</description>
                <field type="uint64_t" name="mission_time">Mission time in microseconds at which the water was dropped</field>
@@ -46,6 +30,73 @@
                <field type="uint8_t[9]" name="i">list of i grid coords of grid cells in view (i = 255 means unused array element)</field>
                <field type="uint8_t[9]" name="j">list of j grid coords of grid cells in view (j = 255 means unused array element)</field>
                <field type="int8_t[9]" name="state">list of states of the grid cells in cell (state = 3 means unused array element)</field>
+          </message>
+          <message id="157" name="AA241X_GRID_FIRE">
+               <description>Compact version of the fire cells in the grid</description>
+               <field type="uint64_t" name="mission_time">The time this grid was sent</field>
+               <field type="uint16_t[16]" name="fire_cells">compact version of cells on fire</field>
+          </message>
+          <message id="158" name="AA241X_GRID_WATER">
+               <description>Compact version of the water cells in the grid</description>
+               <field type="uint64_t" name="mission_time">The time this grid was sent</field>
+               <field type="uint16_t[16]" name="water_cells">compact version of cells that are water</field>
+          </message>
+          <message id="159" name="AA241X_GRID_COMBINED">
+               <description>Compact version of all the cell information in bounds</description>
+               <field type="uint64_t" name="mission_time">The time this grid was sent</field>
+               <field type="uint32_t[13]" name="cell">compact version of cells info in bounds</field>
+          </message>
+          <message id="160" name="AA241X_HIGH">
+               <description>High data fields</description>
+               <field type="uint64_t" name="timestamp">The time the data was sent</field>
+               <field type="float" name="field1">Field 1</field>
+               <field type="float" name="field2">Field 2</field>
+               <field type="float" name="field3">Field 3</field>
+               <field type="float" name="field4">Field 4</field>
+               <field type="float" name="field5">Field 5</field>
+               <field type="float" name="field6">Field 6</field>
+               <field type="float" name="field7">Field 7</field>
+               <field type="float" name="field8">Field 8</field>
+               <field type="float" name="field9">Field 9</field>
+               <field type="float" name="field10">Field 10</field>
+               <field type="float" name="field11">Field 11</field>
+               <field type="float" name="field12">Field 12</field>
+               <field type="float" name="field13">Field 13</field>
+               <field type="float" name="field14">Field 14</field>
+               <field type="float" name="field15">Field 15</field>
+               <field type="float" name="field16">Field 16</field>
+          </message>
+          <message id="161" name="AA241X_LOW">
+               <description>Low data fields</description>
+               <field type="uint64_t" name="timestamp">The time the data was sent</field>
+               <field type="float" name="field1">Field 1</field>
+               <field type="float" name="field2">Field 2</field>
+               <field type="float" name="field3">Field 3</field>
+               <field type="float" name="field4">Field 4</field>
+               <field type="float" name="field5">Field 5</field>
+               <field type="float" name="field6">Field 6</field>
+               <field type="float" name="field7">Field 7</field>
+               <field type="float" name="field8">Field 8</field>
+               <field type="float" name="field9">Field 9</field>
+               <field type="float" name="field10">Field 10</field>
+               <field type="float" name="field11">Field 11</field>
+               <field type="float" name="field12">Field 12</field>
+               <field type="float" name="field13">Field 13</field>
+               <field type="float" name="field14">Field 14</field>
+               <field type="float" name="field15">Field 15</field>
+               <field type="float" name="field16">Field 16</field>
+          </message>
+          <message id="162" name="AA241X_AUX_DATA">
+               <description>Custom auxiliary data fields that can't already be found elsewhere</description>
+               <field type="uint64_t" name="timestamp">The time the data was sent</field>
+               <field type="float" name="N">FNorth position im [m]</field>
+               <field type="float" name="E">East position in [m]</field>
+               <field type="float" name="D_baro">Down baro position in [m]</field>
+               <field type="float" name="D_gps">Down gps position in [m]</field>
+               <field type="float" name="body_u">Body u velocity in [m/s]</field>
+               <field type="float" name="body_v">Body v velocity in [m/s]</field>
+               <field type="float" name="body_w">Body w velocity in [m/s]</field>
+               <field type="float" name="ground_speed">Ground speed in [m/s]</field>
           </message>
      </messages>
 </mavlink>
