@@ -108,5 +108,20 @@
                <field type="uint64_t" name="time_unix_usec">Timestamp of the master clock in microseconds since UNIX epoch.</field>
                <field type="uint64_t" name="time_boot_usec">Timestamp of the component clock since boot time in microseconds.</field>
           </message>
+          <message id="215" name="RSSI">
+               <description>The RSSI value measured by the wifly module</description>
+               <field type="int32_t" name="rssi_value">The rssi value measured</field>
+               <field type="float" name="heading">The heading for the current measurement</field>
+               <field type="int32_t" name="lat">Latitude where the measurement was taken</field>
+               <field type="int32_t" name="lon">Longitutde where the measurement was taken</field>
+               <field type="float" name="alt">Altitude of the measurement</field>
+          </message>
+          <message id="216" name="BEARING">
+               <description>The last measured bearing</description>
+               <field type="double" name="bearing">The calculated bearing</field>
+               <field type="int32_t" name="lat">Latitude where the measurement was taken</field>
+               <field type="int32_t" name="lon">Longitutde where the measurement was taken</field>
+               <field type="float" name="alt">Altitude of the measurement</field>
+          </message>
      </messages>
 </mavlink>
