@@ -24,7 +24,9 @@
                </description>
                <entry value="1" name="TRACKING_CMD_TRAVEL" />
                <entry value="2" name="TRACKING_CMD_ROTATE" />
-               <entry value="3" name="TRACKING_CMD_FINISH">
+               <entry value="3" name="TRACKING_CMD_STOP" />
+                    <description>Tell the vehicle to stop, whether it means stop rotating or stop moving depends on the current state of the vehicle</description>
+               <entry value="4" name="TRACKING_CMD_FINISH">
                     <description>Tell the vehicle that the jammer has been found at this location and to just loiter at the given location indefinitely</description>
                </entry>
           </enum>
@@ -110,14 +112,25 @@
           </message>
           <message id="215" name="RSSI">
                <description>The RSSI value measured by the wifly module</description>
+               <field type="uint64_t" name="timestamp_usec">The timestamp of the measurement (from the pixhawk)</field>
                <field type="int32_t" name="rssi_value">The rssi value measured</field>
-               <field type="float" name="heading">The heading for the current measurement</field>
+               <field type="int32_t" name="rssi_value2">The rssi value measured (for the second antenna)</field>
+               <field type="int16_t" name="heading">The heading for the current measurement</field>
                <field type="int32_t" name="lat">Latitude where the measurement was taken</field>
                <field type="int32_t" name="lon">Longitutde where the measurement was taken</field>
                <field type="float" name="alt">Altitude of the measurement</field>
           </message>
-          <message id="216" name="BEARING">
-               <description>The last measured bearing</description>
+          <message id="216" name="BEARING_CC">
+               <description>The last measured bearing from the cross corolation method</description>
+               <field type="uint64_t" name="timestamp_usec">The timestamp of the measurement (from the pixhawk)</field>
+               <field type="double" name="bearing">The calculated bearing</field>
+               <field type="int32_t" name="lat">Latitude where the measurement was taken</field>
+               <field type="int32_t" name="lon">Longitutde where the measurement was taken</field>
+               <field type="float" name="alt">Altitude of the measurement</field>
+          </message>
+          <message id="217" name="BEARING_MLE">
+               <description>The last measured bearing using the mle method</description>
+               <field type="uint64_t" name="timestamp_usec">The timestamp of the measurement (from the pixhawk)</field>
                <field type="double" name="bearing">The calculated bearing</field>
                <field type="int32_t" name="lat">Latitude where the measurement was taken</field>
                <field type="int32_t" name="lon">Longitutde where the measurement was taken</field>
