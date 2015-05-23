@@ -10,6 +10,9 @@
                <field type="uint8_t" name="in_mission">Mission state: 0 = not in mission, 1 = in mission</field>
                <field type="float" name="score">Mission score (range from 0 to 100)</field>
                <field type="float" name="mission_time">Mission time in minutes</field>
+               <field type="float" name="battery_used">Battery capacity (in mAh) used since mission start</field>
+               <field type="uint8_t" name="wind_direction">The wind direction of this current mission</field>
+               <field type="uint8_t" name="mission_index">The current index of the mission being run</field>
           </message>
           <message id="155" name="AA241X_WATER_DROP_RESULT">
                <description>Location and misssion timestamp that water was virtually dropped from the UAV</description>
@@ -44,7 +47,7 @@
           <message id="159" name="AA241X_GRID_COMBINED">
                <description>Compact version of all the cell information in bounds</description>
                <field type="uint64_t" name="mission_time">The time this grid was sent</field>
-               <field type="uint32_t[13]" name="cell">compact version of cells info in bounds</field>
+               <field type="uint32_t[12]" name="cell">compact version of cells info in bounds</field>
           </message>
           <message id="160" name="AA241X_HIGH">
                <description>High data fields</description>
