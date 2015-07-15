@@ -24,8 +24,9 @@
                </description>
                <entry value="1" name="TRACKING_CMD_TRAVEL" />
                <entry value="2" name="TRACKING_CMD_ROTATE" />
-               <entry value="3" name="TRACKING_CMD_STOP" />
+               <entry value="3" name="TRACKING_CMD_STOP" >
                     <description>Tell the vehicle to stop, whether it means stop rotating or stop moving depends on the current state of the vehicle</description>
+               </entry>
                <entry value="4" name="TRACKING_CMD_FINISH">
                     <description>Tell the vehicle that the jammer has been found at this location and to just loiter at the given location indefinitely</description>
                </entry>
