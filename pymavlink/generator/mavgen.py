@@ -7,7 +7,7 @@ Copyright Andrew Tridgell 2011
 Released under GNU GPL version 3 or later
 
 '''
-import sys, textwrap, os
+import sys, textwrap, os, copy
 from . import mavparse
 
 # XSD schema file
@@ -20,7 +20,7 @@ DEFAULT_ERROR_LIMIT = 200
 DEFAULT_VALIDATE = True
 
 # List the supported languages. This is done globally because it's used by the GUI wrapper too
-supportedLanguages = ["C", "CS", "JavaScript", "Python", "WLua", "ObjC", "Java"]
+supportedLanguages = ["C", "CS", "JavaScript", "Python", "WLua", "ObjC", "Swift", "Java"]
 
 
 def mavgen(opts, args) :
@@ -74,11 +74,14 @@ def mavgen(opts, args) :
             xml.append(mavparse.MAVXML(fname, opts.wire_protocol))
 
             # include message lengths and CRCs too
-            for idx in range(0, 256):
-                if x.message_lengths[idx] == 0:
-                    x.message_lengths[idx] = xml[-1].message_lengths[idx]
-                    x.message_crcs[idx] = xml[-1].message_crcs[idx]
-                    x.message_names[idx] = xml[-1].message_names[idx]
+            x.message_crcs.update(xml[-1].message_crcs)
+            x.message_lengths.update(xml[-1].message_lengths)
+            x.message_min_lengths.update(xml[-1].message_min_lengths)
+            x.message_flags.update(xml[-1].message_flags)
+            x.message_target_system_ofs.update(xml[-1].message_target_system_ofs)
+            x.message_target_component_ofs.update(xml[-1].message_target_component_ofs)
+            x.message_names.update(xml[-1].message_names)
+            x.largest_payload = max(x.largest_payload, xml[-1].largest_payload)
 
     # work out max payload size across all includes
     largest_payload = 0
@@ -114,6 +117,9 @@ def mavgen(opts, args) :
     elif opts.language == 'objc':
         from . import mavgen_objc
         mavgen_objc.generate(opts.output, xml)
+    elif opts.language == 'swift':
+        from . import mavgen_swift
+        mavgen_swift.generate(opts.output, xml)
     elif opts.language == 'java':
         from . import mavgen_java
         mavgen_java.generate(opts.output, xml)
@@ -139,9 +145,14 @@ def mavgen_python_dialect(dialect, wire_protocol):
         xml = os.path.join(dialects, 'v09', dialect + '.xml')
         if not os.path.exists(xml):
             xml = os.path.join(mdef, 'v0.9', dialect + '.xml')
-    else:
+    elif wire_protocol == mavparse.PROTOCOL_1_0:
         py = os.path.join(dialects, 'v10', dialect + '.py')
         xml = os.path.join(dialects, 'v10', dialect + '.xml')
+        if not os.path.exists(xml):
+            xml = os.path.join(mdef, 'v1.0', dialect + '.xml')
+    else:
+        py = os.path.join(dialects, 'v20', dialect + '.py')
+        xml = os.path.join(dialects, 'v20', dialect + '.xml')
         if not os.path.exists(xml):
             xml = os.path.join(mdef, 'v1.0', dialect + '.xml')
     opts = Opts(py, wire_protocol)

@@ -7,7 +7,12 @@ of a series of MAVLink packets, each with a 64 bit timestamp
 header. The timestamp is in microseconds since 1970 (unix epoch)
 '''
 
-import sys, time, os, struct, json
+import sys, time, os, struct, json, fnmatch
+
+try:
+    from pymavlink.mavextra import *
+except:
+    print("WARNING: Numpy missing, mathematical notation will not be supported..")
 
 from argparse import ArgumentParser
 parser = ArgumentParser(description=__doc__)
@@ -22,8 +27,8 @@ parser.add_argument("-o", "--output", default=None, help="output matching packet
 parser.add_argument("-p", "--parms", action='store_true', help="preserve parameters in output with -o")
 parser.add_argument("--format", default=None, help="Change the output format between 'standard', 'json', and 'csv'. For the CSV output, you must supply types that you want.")
 parser.add_argument("--csv_sep", dest="csv_sep", default=",", help="Select the delimiter between columns for the output CSV file. Use 'tab' to specify tabs. Only applies when --format=csv")
-parser.add_argument("--types", default=None, help="types of messages (comma separated)")
-parser.add_argument("--nottypes", default=None, help="types of messages not to include (comma separated)")
+parser.add_argument("--types", default=None, help="types of messages (comma separated with wildcard)")
+parser.add_argument("--nottypes", default=None, help="types of messages not to include (comma separated with wildcard)")
 parser.add_argument("--dialect", default="ardupilotmega", help="MAVLink dialect")
 parser.add_argument("--zero-time-base", action='store_true', help="use Z time base for DF logs")
 parser.add_argument("--no-bad-data", action='store_true', help="Don't output corrupted messages")
@@ -56,15 +61,22 @@ if nottypes is not None:
 
 ext = os.path.splitext(filename)[1]
 isbin = ext in ['.bin', '.BIN']
-islog = ext in ['.log', '.LOG']
+islog = ext in ['.log', '.LOG','.tlog','.TLOG']
 
 if args.csv_sep == "tab":
     args.csv_sep = "\t"
 
+def match_type(mtype, patterns):
+    '''return True if mtype matches pattern'''
+    for p in patterns:
+        if fnmatch.fnmatch(mtype, p):
+            return True
+    return False
+
 # Write out a header row as we're outputting in CSV format.
 fields = ['timestamp']
 offsets = {}
-if args.format == 'csv':
+if islog and args.format == 'csv': # we know our fields from the get-go
     try:
         currentOffset = 1 # Store how many fields in we are for each message.
         for type in types:
@@ -80,18 +92,29 @@ if args.format == 'csv':
         exit()
 
     # The first line output are names for all columns
+    csv_out = ["" for x in fields]
     print(','.join(fields))
+
+if isbin and args.format == 'csv': # need to accumulate columns from message
+    if types is None or len(types) != 1:
+        print("Need exactly one type when dumping CSV from bin file")
+        quit()
 
 # Track the last timestamp value. Used for compressing data for the CSV output format.
 last_timestamp = None
 
 # Keep track of data from the current timestep. If the following timestep has the same data, it's stored in here as well. Output should therefore have entirely unique timesteps.
-csv_out = ["" for x in fields]
 while True:
     m = mlog.recv_match(blocking=args.follow)
     if m is None:
         # FIXME: Make sure to output the last CSV message before dropping out of this loop
         break
+    if isbin and m.get_type() == "FMT" and args.format == 'csv':
+        if m.Name == types[0]:
+            fields += m.Columns.split(',')
+            csv_out = ["" for x in fields]
+            print(','.join(fields))
+
     if output is not None:
         if (isbin or islog) and m.get_type() == "FMT":
             output.write(m.get_msgbuf())
@@ -106,10 +129,10 @@ while True:
     if not mavutil.evaluate_condition(args.condition, mlog.messages):
         continue
 
-    if types is not None and m.get_type() not in types and m.get_type() != 'BAD_DATA':
+    if types is not None and m.get_type() != 'BAD_DATA' and not match_type(m.get_type(), types):
         continue
 
-    if nottypes is not None and m.get_type() in nottypes:
+    if nottypes is not None and match_type(m.get_type(), nottypes):
         continue
 
     # Ignore BAD_DATA messages is the user requested or if they're because of a bad prefix. The
@@ -160,7 +183,11 @@ while True:
         # If this message has a duplicate timestamp, copy its data into the existing data list. Also
         # do this if it's the first message encountered.
         if timestamp == last_timestamp or last_timestamp is None:
-            newData = [str(data[y.split('.')[-1]]) if y.split('.')[0] == type and y.split('.')[-1] in data else "" for y in fields]
+            if isbin:
+                newData = [str(data[y]) if y != "timestamp" else "" for y in fields]
+            else:
+                newData = [str(data[y.split('.')[-1]]) if y.split('.')[0] == type and y.split('.')[-1] in data else "" for y in fields]
+
             for i, val in enumerate(newData):
                 if val:
                     csv_out[i] = val
@@ -169,7 +196,10 @@ while True:
         else:
             csv_out[0] = "{:.8f}".format(last_timestamp)
             print(args.csv_sep.join(csv_out))
-            csv_out = [str(data[y.split('.')[-1]]) if y.split('.')[0] == type and y.split('.')[-1] in data else "" for y in fields]
+            if isbin:
+                csv_out = [str(data[y]) if y != "timestamp" else "" for y in fields]
+            else:
+                csv_out = [str(data[y.split('.')[-1]]) if y.split('.')[0] == type and y.split('.')[-1] in data else "" for y in fields]
     # Otherwise we output in a standard Python dict-style format
     else:
         print("%s.%02u: %s" % (
